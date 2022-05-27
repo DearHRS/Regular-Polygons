@@ -1,30 +1,37 @@
 public class RegularPolygon {
+    String name;
     double length;
     int vertices;
     double internalAngle;
     double[] center = new double[2];
     double[][] verticesPosition = new double[100][3];
 
-    RegularPolygon(int vertices, double length, double[] center){
+    RegularPolygon(String name, int vertices, double length, double[] center){
+        this.name = name;
         this.vertices = vertices;
         this.length = length;
         this.center = center;
         this.internalAngle = (vertices - 2) * 180 / vertices;  //(n-2)*180 is formula to find total internal angle
 
         MakeVertices();
+
         Show();
-        Draw();
     }
 
     public void Show(){
-        System.out.println("Attributes:" +
-                           "\n vertices = " + vertices +
-                           "\n length = " + length +
-                           "\n internalAngle = " + internalAngle);
+        System.out.println("\nAttributes of the " + name + ":" +
+                           "\n       vertices = " + vertices +
+                           "\n         length = " + length +
+                           "\n  internalAngle = " + internalAngle + "\n");
 
         for(int i = 0; i < vertices; i++){
             System.out.println(" Point " + (i+1) + " = (" + verticesPosition[i][0] + ", " + verticesPosition[i][1] + ")");
         }
+
+        System.out.println("\n      Perimeter = " + Perimeter());
+        System.out.println("           Area = " + Area());
+
+        Draw();
     }
 
     void MakeVertices(){
@@ -68,45 +75,68 @@ public class RegularPolygon {
     public double Area(){
         double arg = Math.PI / (double) vertices;
 
-        return (double) vertices * Math.pow(length, 2) * (Math.cos(arg)/Math.sin(arg));
+        return (double) Math.round(((double) vertices * Math.pow(length, 2) * (Math.cos(arg)/Math.sin(arg) / 4)) * 100000) / 100000;
     }
 
-    //unnecessary methods
+    //unnecessary methods not related to given task
 
     //method to roughly draw the shape
     public void Draw(){
         //getting a sorted version of the position array
         double [][] sortedPos = RearrangePositions(verticesPosition, vertices);
 
-        //height
-        int[] height = {(int) sortedPos[0][1], 0};
+        //variable to store lowest value of x, used for drawing first points per line (so index is not negative)
+        double lowestXValue = sortedPos[0][0];
 
-        //finding lowestXvalue for printing
-        int lowestXvalue = (int) sortedPos[0][0];
+
+        //finding lowest X values
         for(int i = 1; i < vertices; i++){
-            if(lowestXvalue > sortedPos[i][0]){
-                lowestXvalue = (int) sortedPos[0][0];
+            if(lowestXValue > sortedPos[i][0]){
+                lowestXValue = sortedPos[i][0];
             }
         }
 
-        //drawing
-        for(int i = 0; i < vertices; i++){
-            if(height[0] == (int)sortedPos[i][1]){
-                for(int j = 0; j < ((int)sortedPos[i][0] - lowestXvalue); j++){
-                    System.out.print(" ");
+        //drawing empty spaces along x axis between edge and first point
+        for(int i = 0; i < (int)(sortedPos[0][0] - lowestXValue); i++){
+            System.out.print("   ");
+        }
+        System.out.print(sortedPos[0][2]);
+
+        //drawing points layer by layer
+        for(int i = 1; i < vertices; i++){
+            //this part only activates when we got second point to draw on same line
+            if(sortedPos[i - 1][1] == sortedPos[i][1]){
+                for(int j = 0; j < (int)(sortedPos[i][0] - sortedPos[i - 1][0]); j++){
+                    System.out.print("   ");
                 }
                 System.out.print(sortedPos[i][2]);
-            }
-            else{
-                height[1] = height[0] - (int) sortedPos[i][1];
-                height[0] = (int) sortedPos[i][1];
 
-                for(int j = 0; j < height[1]; j++){
-                    you were here trying to add spaces
+            }
+
+            //this part only activates when we got first point to draw on next line
+            else{
+                //drawing necessary amount of new line between last line and next line
+                for(int j = 0; j < Math.round(sortedPos[i - 1][1] - sortedPos[i][1]); j++){
+                    System.out.println();
                 }
+
+                //drawing necessary spaces between first point and edge, then drawinf first point
+                for(int j = 0; j < (int)(sortedPos[i][0] - lowestXValue); j++){
+                    System.out.print("   ");
+                }
+                System.out.print(sortedPos[i][2]);
+
             }
         }
 
+        //algorithm
+        /*first point drawn after giving necessary amount of spaces between edge and the point
+        for cycle from second element and onwards
+                if next point is in same y value
+                    then from first point on same line next point is drawn after giving enough spaces
+                else
+                    draw the required new lines between last line and next line
+                    then draw first point of next line after giving enough spaces*/
     }
 
 
