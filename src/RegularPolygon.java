@@ -18,6 +18,7 @@ public class RegularPolygon {
         Show();
     }
 
+    //Method to output attributes
     public void Show(){
         System.out.println("\nAttributes of the " + name + ":" +
                            "\n       vertices = " + vertices +
@@ -34,6 +35,7 @@ public class RegularPolygon {
         Draw();
     }
 
+    //Private method to output make vertices
     void MakeVertices(){
         //first seed vertex
         verticesPosition[0][0] = center[0] - (length / 2);
